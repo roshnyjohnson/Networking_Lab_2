@@ -27,8 +27,8 @@ int main(){
         {
                 frame.seq_no=seq;
                 sprintf(frame.data,"Packet %d",i);
-                sendto(client_socket,&frame,sizeof(Frame),0,(struct sockaddr *)&cad>
-                n=recvfrom(client_socket,&frame,sizeof(Frame),0,(struct sockaddr *)>
+                sendto(client_socket,&frame,sizeof(Frame),0,(struct sockaddr *)&caddr,caddrsize);
+                n=recvfrom(client_socket,&frame,sizeof(Frame),0,(struct sockaddr *)&caddr,&caddrsize);
                 if(frame.ack_no==seq)
                 {
                         printf("Recieved ACK %d.Move to next packet\n",seq);
@@ -42,3 +42,4 @@ int main(){
         }
 
 }
+
