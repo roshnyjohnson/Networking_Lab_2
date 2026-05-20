@@ -2,47 +2,43 @@
 #include<stdlib.h>
 #include<arpa/inet.h>
 #include<string.h>
-#include<sys/select.h>
-#include<time.h>
+#include<unistd.h>
+
 int main()
 {
         int server_socket,client_socket;
         server_socket=socket(AF_INET,SOCK_STREAM,0);
-        struct sockaddr_in saddr={AF_INET,htons(5555),INADDR_ANY},caddr;
+        struct sockaddr_in saddr={AF_INET,htons(5555),INADDR_ANY};
         bind(server_socket,(struct sockaddr *)&saddr,sizeof(saddr));
         listen(server_socket,5);
+        int frame,ack;
+        int expected=0;
         client_socket=accept(server_socket,NULL,NULL);
-        struct timeval tv={2,0};
-        int base=0;
-        int next=0;
-        int ack;
-        while(base<5)
+        while(1)
         {
-                while(next<base+4&&next<5)
-                {
-                        printf("Sending frame %d\n",next);
-                        send(client_socket,&next,sizeof(next),0);
-                        next++;
-                }
-                fd_set readfds;
-                FD_ZERO(&readfds);
-                FD_SET(client_socket,&readfds);
+                recv(client_socket,&frame,sizeof(frame),0);
+                printf("Recieved frame%d\n",frame);
 
-                int activity=select(client_socket+1,&readfds,NULL,NULL,&tv);
-
-                if (activity>0)
+                if(expected==frame)
                 {
-                        recv(client_socket,&ack,sizeof(ack),0);
-                        printf("Recieved ACK %d\n",ack);
-                        base=ack+1;
+                        if(rand()%3<1)
+                        {
+                                printf("Frame %d lost\n",frame);
+                        }
+                        else{
+                                ack=expected;
+                                send(client_socket,&ack,sizeof(ack),0);
+                                printf("Sending ACK%d\n",ack);
+                                expected++;
+                        }
                 }
                 else{
-                        printf("Failed to recieve ACK.Resending frame %d\n",base);
-                        next=base;
+                        ack=expected-1;
+                        send(client_socket,&ack,sizeof(ack),0);
+                        printf("Sending last NACK%d\n",ack);
+
                 }
+
+
         }
 }
-
-
-
-
