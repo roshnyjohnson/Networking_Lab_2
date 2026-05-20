@@ -23,12 +23,12 @@ int main()
         if(fp!=NULL)
         {
                 n=fread(content,1,2047,fp);content[n]='\0';
-                snprintf(b,sizeof(b),"[procrss:%d]The file content of %s is %s",get>
+                snprintf(b,sizeof(b),"[procrss:%d]The file content of %s is %s",getpid(),fname,content);
                 send(client_socket,b,strlen(b),0);
         }
         else
         {
-                 snprintf(b,sizeof(b),"[procrss:%d]The file %d does not exist\n ",g>
+                 snprintf(b,sizeof(b),"[procrss:%d]The file %d does not exist\n ",getpid());
                  send(client_socket,b,strlen(b),0);
 
         }
